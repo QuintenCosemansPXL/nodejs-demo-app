@@ -26,8 +26,8 @@ jobs:
       - name: Test
         run: npm test -- --coverage
 
-      - name: Generate test coverage report
-        uses: dorny/test-reporter@v1
+      - name: Generate Better Test Report
+        uses: mridang/action-test-reporter@v1.5.0
         with:
           name: Test Coverage
           path: coverage/lcov.info
