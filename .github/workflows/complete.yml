@@ -24,4 +24,11 @@ jobs:
         run: npm run build 
 
       - name: Test
-        run: npm test
+        run: npm test -- --coverage
+
+      - name: Generate test coverage report
+        uses: dorny/test-reporter@v1
+        with:
+          name: Test Coverage
+          path: coverage/lcov.info
+          reporter: lcov
