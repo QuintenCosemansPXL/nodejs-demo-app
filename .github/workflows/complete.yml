@@ -81,7 +81,9 @@ jobs:
         run: |
           INSTANCE_ID=$(aws ec2 run-instances \
             --image-id ami-0c55b159cbfafe1f0 \
-            --instance-type t3.micro \
+            --instance-type t2.micro \
+            --security-group-ids sg-0ab82ff3eeb197369 \
+            --subnet-id subnet-033bcadbffea5f17d \
             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=nodejs-demo-app},{Key=Environment,Value=production}]' \
             --user-data '#!/bin/bash
             yum update -y
@@ -110,20 +112,6 @@ jobs:
           
           echo "public_ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
           echo "Instance Public IP: $PUBLIC_IP"
-
-  docker-run:
-    name: Run the images on AWS EC2
-    runs-on: self-hosted
-    needs: [build-and-test, docker-build-and-push]
-
-    steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
