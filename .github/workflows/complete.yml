@@ -18,7 +18,7 @@ jobs:
           node-version: '20' 
           
       - name: Install dependencies
-        run: npm install
+        run: npm install yarn
         
       - name: Build
         run: npm run build 
@@ -31,3 +31,5 @@ jobs:
 
       - name: Better Test Reports
         uses: mridang/action-test-reporter@v1.5.0
+        with:
+          coverage-file: coverage/lcov.info
