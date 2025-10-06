@@ -2,6 +2,7 @@ name: Checkout Example
 
 on:
   workflow_dispatch:
+  push:
 
 jobs:
   checkout-example:
