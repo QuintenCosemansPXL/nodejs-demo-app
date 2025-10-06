@@ -81,8 +81,8 @@ jobs:
   
       - name: Pull Docker Image
         run: |
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-demo-app:${{ github.sha }}    
-  
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-demo-app:${{ github.sha }}
+
       - name: Run Docker Image
         run: |
           docker run -d \
