@@ -80,7 +80,7 @@ jobs:
         id: create-instance
         run: |
           INSTANCE_ID=$(aws ec2 run-instances \
-            --image-id ami-0c55b159cbfafe1f0 \
+            --image-id ami-052064a798f08f0d3 \
             --instance-type t2.micro \
             --security-group-ids sg-0ab82ff3eeb197369 \
             --subnet-id subnet-033bcadbffea5f17d \
