@@ -20,8 +20,8 @@ jobs:
       - name: Install dependencies
         run: npm install
         
-      - name: build
+      - name: Build
         run: npm run build 
 
-      - name: Show the listing and contents of the directories
-        run: ls -alhR
+      - name: Test
+        run: npm test
