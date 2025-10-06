@@ -1,0 +1,16 @@
+name: Checkout Example
+
+on:
+  workflow_dispatch:
+
+jobs:
+  checkout-example:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show files and directories
+        run: |
+          ls -alhR
