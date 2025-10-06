@@ -51,6 +51,13 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}nodejs-demo-app:${{ github.sha }}
       
   docker-run:
     name: Build and Push Docker Image
@@ -58,13 +65,6 @@ jobs:
     needs: [build-and-test, docker-build-and-push]
 
     steps:
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}nodejs-demo-app:${{ github.sha }}
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
