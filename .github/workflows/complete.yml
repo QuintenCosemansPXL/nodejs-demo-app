@@ -57,4 +57,5 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.sha }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}myapp:${{ github.sha }}
+
