@@ -1,11 +1,12 @@
-name: Build Example
+name: CI/CD Pipeline
 
 on:
   workflow_dispatch:
   push:
 
 jobs:
-  checkout-example:
+  build-and-test:
+    name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
@@ -15,15 +16,15 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' 
-          
-      - name: Install dependencies
-        run: npm install yarn
-        
-      - name: Build
-        run: npm run build 
+          node-version: '20'
 
-      - name: Test
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Run tests with coverage
         run: npm test -- --coverage
 
       - name: Show files and directories
@@ -33,3 +34,27 @@ jobs:
         uses: mridang/action-test-reporter@v1.5.0
         with:
           coverage-file: coverage/lcov.info
+
+  docker-build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/myapp:latest
