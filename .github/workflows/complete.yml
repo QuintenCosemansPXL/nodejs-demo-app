@@ -26,9 +26,8 @@ jobs:
       - name: Test
         run: npm test -- --coverage
 
-      - name: Generate Better Test Report
+      - name: Show files and directories
+        run: ls -alhR
+
+      - name: Better Test Reports
         uses: mridang/action-test-reporter@v1.5.0
-        with:
-          name: Test Coverage
-          path: coverage/lcov.info
-          reporter: lcov
