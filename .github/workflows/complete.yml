@@ -63,75 +63,27 @@ jobs:
     name: Provision EC2 Instance
     runs-on: ubuntu-latest
     needs: [build-and-test, docker-build-and-push]
-    outputs:
-      instance-id: ${{ steps.create-instance.outputs.instance_id }}
-      instance-ip: ${{ steps.get-ip.outputs.public_ip }}
 
     steps:
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.6.6
+
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Create EC2 Instance
-        id: create-instance
-        run: |
-          INSTANCE_ID=$(aws ec2 run-instances \
-            --image-id ami-052064a798f08f0d3 \
-            --instance-type t2.micro \
-            --security-group-ids sg-0ab82ff3eeb197369 \
-            --subnet-id subnet-033bcadbffea5f17d \
-            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=nodejs-demo-app},{Key=Environment,Value=production}]' \
-            --user-data '#!/bin/bash
-            yum update -y
-            yum install -y docker
-            systemctl start docker
-            systemctl enable docker
-            usermod -a -G docker ec2-user' \
-            --query 'Instances[0].InstanceId' \
-            --output text)
-          
-          echo "instance_id=$INSTANCE_ID" >> $GITHUB_OUTPUT
-          echo "Created EC2 instance: $INSTANCE_ID"
+      - name: Terraform Init
+        working-directory: infra
+        run: terraform init
 
-      - name: Wait for Instance to be Running
-        run: |
-          aws ec2 wait instance-running --instance-ids ${{ steps.create-instance.outputs.instance_id }}
-          echo "Instance is now running"
-
-      - name: Get Instance Public IP
-        id: get-ip
-        run: |
-          PUBLIC_IP=$(aws ec2 describe-instances \
-            --instance-ids ${{ steps.create-instance.outputs.instance_id }} \
-            --query 'Reservations[0].Instances[0].PublicIpAddress' \
-            --output text)
-          
-          echo "public_ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
-          echo "Instance Public IP: $PUBLIC_IP"
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-  
-      - name: Pull Docker Image
-        run: |
-          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-demo-app:${{ github.sha }}
-
-      - name: Stop and Remove Old Container
-        run: |
-          sudo docker stop myapp || true
-          sudo docker rm myapp || true
-
-      - name: Run Docker Image
-        run: |
-          sudo docker run -d \
-            --name myapp \
-            -p 80:5000 \
-            --restart unless-stopped \
-            ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-demo-app:${{ github.sha }}
+      - name: Terraform Apply
+        working-directory: infra
+        env:
+          TF_IN_AUTOMATION: true
+        run: terraform apply -auto-approve
