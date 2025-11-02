@@ -67,7 +67,7 @@ resource "aws_security_group" "app" {
 
 # EC2 instantie met Docker en image deploy
 resource "aws_instance" "app" {
-  ami                         = "ami-052064a798f08f0d3"
+  ami                         = "ami-01b9f1e7dc427266e"
   instance_type                = "t3.micro"
   subnet_id                    = element(data.aws_subnets.default.ids, 0)
   vpc_security_group_ids       = [aws_security_group.app.id]
