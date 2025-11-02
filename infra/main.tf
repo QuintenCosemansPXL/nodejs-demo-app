@@ -38,27 +38,15 @@ data "aws_subnets" "default" {
   }
 }
 
-# Probeer de bestaande security group te vinden
-data "aws_security_group" "existing_app" {
-  filter {
-    name   = "group-name"
-    values = ["user-management-api-sg"]
-  }
-
-  vpc_id = data.aws_vpc.default.id
-}
-
-# Maak een nieuwe security group als er geen bestaat
 resource "aws_security_group" "app" {
-  count       = data.aws_security_group.existing_app.id != "" ? 0 : 1
   name        = "user-management-api-sg"
   description = "Security group for User Management API"
   vpc_id      = data.aws_vpc.default.id
 
   ingress {
     description = "Allow HTTP traffic to application port"
-    from_port   = 5000
-    to_port     = 5000
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -76,18 +64,13 @@ resource "aws_security_group" "app" {
   }
 }
 
-# Selecteer automatisch juiste SG ID (bestaand of nieuw)
-locals {
-  sg_id = try(data.aws_security_group.existing_app.id, aws_security_group.app[0].id)
-}
-
 
 # EC2 instantie met Docker en image deploy
 resource "aws_instance" "app" {
   ami                         = "ami-052064a798f08f0d3"
   instance_type                = "t3.micro"
   subnet_id                    = element(data.aws_subnets.default.ids, 0)
-  vpc_security_group_ids       = [local.sg_id]
+  vpc_security_group_ids       = "app"
   associate_public_ip_address  = true
   key_name                     = "labkey"
 
