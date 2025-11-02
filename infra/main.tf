@@ -70,7 +70,7 @@ resource "aws_instance" "app" {
   ami                         = "ami-052064a798f08f0d3"
   instance_type                = "t3.micro"
   subnet_id                    = element(data.aws_subnets.default.ids, 0)
-  vpc_security_group_ids       = "app"
+  vpc_security_group       = "app"
   associate_public_ip_address  = true
   key_name                     = "labkey"
 
