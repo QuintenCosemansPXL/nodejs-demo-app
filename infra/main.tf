@@ -72,7 +72,7 @@ resource "aws_instance" "app" {
   subnet_id                    = element(data.aws_subnets.default.ids, 0)
   vpc_security_group_ids       = [aws_security_group.app.id]
   associate_public_ip_address  = true
-  key_name                     = "labkey"
+  key_name                     = "lab"
 
   user_data = base64encode(<<-EOF
       #!/bin/bash
